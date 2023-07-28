@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<title>DeFiners Pool</title>
+
+<link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css">
+<script src="/bootstrap/js/bootstrap.js"></script>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<style>
+/* Wallet active */
+#cen.poolnav {
+	background-color: #D2D2D2;
+	color: #fff;
+	padding-left: 20px;
+	padding-right: 20px;
+	border-radius: 20px;
+}
+
+/* mid box */
+.poolSet {
+	width: 700px;
+	border-radius: 20px;
+	padding: 10px;
+}
+
+/* back arrow */
+.toparrow {
+	text-decoration: none;
+	font-size: 150%;
+	padding-top: 5px;
+	padding-left: 15px;
+	padding-right: 50px;
+	margin-left: 0;
+	margin-right: auto;
+}
+
+/* add liquidity */
+.addLiq {
+	padding-top: 8px;
+	padding-left: 15px;
+	text-align: center;
+}
+
+/* clear all */
+.clearall {
+	text-decoration: none;
+	padding-top: 8px;
+	margin-left: auto;
+	margin-right: 0;
+	padding-right: 15px;
+}
+
+/* settings */
+.settingsTop {
+	padding-top: 8px;
+	padding-right: 15px;
+}
+
+/* fee tier */
+.feeTier {
+	margin-top: 25px;
+	padding-top: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	border: 1px solid grey;
+	border-radius: 20px;
+	margin-right: 35px;
+}
+
+.priceRangeMin {
+	margin-top: 10px;
+	border: 1px solid grey;
+	width: 150px;
+	height: 85px;
+	border-radius: 15px;
+	padding-left: 10px;
+}
+
+.priceRangeMax {
+	margin-top: 10px;
+	border: 1px solid grey;
+	width: 150px;
+	height: 85px;
+	border-radius: 15px;
+	padding-left: 10px;
+}
+
+.minPrice {
+	font-size: x-large;
+	font-weight: bold;
+}
+
+.maxPrice {
+	font-size: x-large;
+	font-weight: bold;
+}
+
+.sliderMin {
+	float: right;
+	margin-top: 15px;
+	margin-right: 30px;
+	min-width: 170px;
+}
+
+.sliderMax {
+	margin-top: 5px;
+	margin-left: 10px;
+}
+
+.approve {
+	border: 1px solid grey;
+	border-radius: 10px;
+	width: 300px;
+	height: 50px;
+	margin-top: 30px;
+	background-color: #D9D9D9;
+	font-size: large;
+}
+
+.err {
+	margin-left: 15px;
+	font-size: small;
+}
+
+.boxDeco {
+	margin-left: 15px;
+	max-width: 280px;
+}
+
+.labelDeco {
+	margin-left: 15px;
+	margin-top: 10px;
+}
+
+.boxDecoMin {
+	margin-left: 15px;
+	max-width: 120px;
+	margin-bottom: 5px;
+}
+
+.minSub {
+	margin-left: 20px;
+}
+</style>
+
+<body style="background-color: #E1EECC;">
+
+	<!-- header -->
+	<div th:replace="fragments/header"></div>
+
+	<div class="container">
+
+
+		<!-- space between header and card -->
+		<br> <br> <br>
+
+		<!-- top bar -->
+		<div class="poolSet mx-auto bg-light">
+			<div class="d-flex">
+				<a class="text-dark toparrow" href="/pool">&#129104;</a>
+				<h4 class="addLiq mx-auto" style="padding-right: 210px;">Add
+					Liquidity</h4>
+			</div>
+
+			<hr>
+
+			<form id="formPool" class="needs-validation"
+				th:action="@{/pool/save}" th:object="${pool}" method="post"
+				enctype="multipart/form-data" novalidate>
+
+				<div class="row">
+
+					<!-- token 1 -->
+					<div class="col needs-validation">
+						<label for="pool_token1" class="form-label labelDeco">Select
+							Token 1:</label> <select id="pool_token1" class="form-control boxDeco"
+							th:field="*{token1}" required>
+							<option value="" disabled selected>Select Token 1:</option>
+							<option th:each="token : ${tokenList}" th:value="${token.name}"
+								th:text="${token.name}"></option>
+						</select>
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please select a valid
+							token.</div>
+						<p class="text-danger err" th:if="${#fields.hasErrors('token1')}"
+							th:errors="*{token1}"></p>
+					</div>
+
+					<!-- deposit 1-->
+					<div class="col needs-validation">
+						<label for="pool_deposit1" class="form-label labelDeco">Deposit
+							Token 1: $</label> <input id="pool_deposit1" class="form-control boxDeco"
+							type="number" th:field="*{deposit1}" required step="0.01" min="1"
+							max="1000">
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please enter a valid
+							amount. (Between $1 and $1000)</div>
+						<p class="text-danger err"
+							th:if="${#fields.hasErrors('deposit1')}" th:errors="*{deposit1}"></p>
+					</div>
+				</div>
+
+				<div class="row" style="padding-top: 20px;">
+
+					<!-- token 2 -->
+					<div class="col needs-validation">
+						<label for="pool_token2" class="form-label labelDeco">Select
+							Token 2:</label> <select id="pool_token2" class="form-control boxDeco"
+							th:field="*{token2}" required>
+							<option value="" disabled selected>Select Token 2:</option>
+							<option th:each="token : ${tokenList}" th:value="${token.name}"
+								th:text="${token.name}"></option>
+						</select>
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please select a valid
+							token.</div>
+						<p class="text-danger err" th:if="${#fields.hasErrors('token2')}"
+							th:errors="*{token2}"></p>
+					</div>
+
+					<!-- deposit 2 -->
+					<div class="col needs-validation">
+						<label for="pool_deposit2" class="form-label labelDeco">Deposit
+							Token 2: $</label> <input id="pool_deposit2" class="form-control boxDeco"
+							type="number" th:field="*{deposit2}" required step="0.01" min="1"
+							max="1000">
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please enter a valid
+							amount. (Between $1 and $1000)</div>
+						<p class="text-danger err"
+							th:if="${#fields.hasErrors('deposit2')}" th:errors="*{deposit2}"></p>
+					</div>
+				</div>
+
+				<div class="row" style="padding-top: 20px;">
+
+					<!-- Minimum -->
+					<div class="col needs-validation">
+						<label for="pool_minimum" class="form-label labelDeco">Minimum
+							Amount:</label>
+						<!-- 						<p class="labelDeco"> -->
+						<!-- 							$<span class="minPrice">0</span> -->
+						<!-- 							slider -->
+						<!-- 							<input id="pool_minimum" class="sliderMin" type="range" -->
+						<!-- 								th:field="*{minimum}" min="0" max="500" step="0.01" value="0" -->
+						<!-- 								oninput="sliderChangeMin()" onclick="sliderChangeMin()"> -->
+						<!-- 						</p> -->
+
+						<input id="pool_minimum" class="form-control boxDeco"
+							type="number" th:field="*{minimum}" required step="0.01" min="1"
+							max="500" value="0">
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please enter a valid
+							amount. (Between $1 and $500)</div>
+						<p class="text-danger err" th:if="${#fields.hasErrors('minimum')}"
+							th:errors="*{minimum}"></p>
+					</div>
+
+					<!-- Maximum -->
+					<div class="col needs-validation">
+						<label for="pool_maximum" class="form-label labelDeco">Maximum
+							Amount: $</label> <input id="pool_maximum" class="form-control boxDeco"
+							type="number" th:field="*{maximum}" required step="0.01"
+							min="500" max="1000">
+
+						<!-- Error -->
+						<div class="invalid-feedback err">Please enter a valid
+							amount. (Between $500 and $1000)</div>
+						<p class="text-danger err" th:if="${#fields.hasErrors('maximum')}"
+							th:errors="*{maximum}"></p>
+					</div>
+				</div>
+
+				<div class="row" style="padding-top: 20px;">
+
+					<!-- Fee -->
+					<div class="col needs-validation">
+						<label for="pool_fee" class="form-label labelDeco">Select
+							Fee Tier:</label> <select id="pool_fee" class="form-control boxDeco"
+							th:field="*{fee}" required>
+							<option value="" disabled selected>Select Fee Tier:</option>
+							<option value="0.01">0.01% | Best For Very Stable Pairs</option>
+							<option value="0.05">0.05% | Best For Stable Pairs</option>
+							<option value="0.3">0.3% | Best For Most Pairs</option>
+							<option value="1">1% | Best For Exotic Pairs</option>
+						</select>
+					</div>
+
+					<!-- Error -->
+					<div class="invalid-feedback err">Please select a fee tier.</div>
+					<p class="text-danger err" th:if="${#fields.hasErrors('fee')}"
+						th:errors="*{fee}"></p>
+
+					<!-- Submit -->
+					<div class="col" style="padding-top: 40px; padding-left: 50px;">
+						<button type="submit" class="btn btn-secondary text-light">Add
+							Pool</button>
+					</div>
+
+				</div>
+			</form>
+
+			<br> <br> <br>
+		</div>
+
+		<!-- footer -->
+		<div th:replace="fragments/footer"></div>
+	</div>
+</body>
+
+<script>
+	/* When user click button, toggle between hiding and showing the dropdown content */
+	function dropEdit() {
+		document.getElementById("dropEdit").classList.toggle("showEdit");
+	}
+
+	// Close the dropdown if the user clicks outside of it
+	window.onclick = function(event) {
+		if (!event.target.matches('.editbtn')) {
+			var dropdownse = document
+					.getElementsByClassName("dropEdit-content");
+			var i;
+			for (i = 0; i < dropdownse.length; i++) {
+				var openDropdowne = dropdownse[i];
+				if (openDropdowne.classList.contains('showEdit')) {
+					openDropdowne.classList.remove('showEdit');
+				}
+			}
+		}
+	}
+
+	function clearAll() {
+		document.getElementById('formPool').reset();
+
+		// 		document.querySelector(".sliderMin").setAttribute('value', 0);
+		// 		var min = document.getElementById("pool_minimum").value;
+		// 		document.querySelector('.minPrice').textContent = min;
+		// 		document.querySelector(".boxDecoMin").setAttribute('value', 0);
+	}
+
+	/* when user select fee tier on dropdown, change the text to show chosen fee tier */
+	// first - v stable
+	// 	function showFee1() {
+	// 		var elem = document.getElementById("feeTierSel1");
+	// 		output = elem.value;
+	// 		document.querySelector('.feeShown').textContent = output;
+	// 	}
+	// second - stable
+	// 	function showFee2() {
+	// 		var elem = document.getElementById("feeTierSel2");
+	// 		output = elem.value;
+	// 		document.querySelector('.feeShown').textContent = output;
+	// 	}
+	// third - most
+	// 	function showFee3() {
+	// 		var elem = document.getElementById("feeTierSel3");
+	// 		output = elem.value;
+	// 		document.querySelector('.feeShown').textContent = output;
+	// 	}
+	// fourth - exotic
+	// 	function showFee4() {
+	// 		var elem = document.getElementById("feeTierSel4");
+	// 		output = elem.value;
+	// 		document.querySelector('.feeShown').textContent = output;
+	// 	}
+	// change min value according to slider
+	// 	function sliderChangeMin() {
+	// 		var min = document.getElementById("pool_minimum").value;
+	// 		document.querySelector('.minPrice').textContent = min;
+	// 				document.querySelector(".sliderMin").setAttribute('value', min);
+	// 				document.querySelector(".boxDecoMin").setAttribute('value', min);
+	// 	}
+	// 	function minSub() {
+	// 		var min = document.getElementById("pool_minimumT").value;
+	// 		document.querySelector('.minPrice').textContent = min;
+	// 		document.querySelector(".sliderMin").setAttribute('value', min);
+	// 		document.querySelector(".boxDecoMin").setAttribute('value', min);
+	// 	}
+	// change max value according to slider
+	// 	function sliderChangeMax() {
+	// 		var max = document.getElementById("maxRange").value;
+	// 		document.querySelector('.maxPrice').textContent = max;
+	// 	}
+	// Form validation, use javascript to perform dynamic functions
+	'use strict'
+
+	var form = document.querySelector('.needs-validation')
+
+	form.addEventListener('submit', function(event) {
+		if (!form.checkValidity()) {
+			event.preventDefault()
+			event.stopPropagation()
+		}
+		form.classList.add('was-validated')
+	})
+</script>
+</html>
+
